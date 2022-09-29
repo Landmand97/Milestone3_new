@@ -1,2 +1,4 @@
 node_modules
 /flask/__pycache__
+/flask/db.db
+
