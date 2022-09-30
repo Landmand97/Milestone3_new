@@ -1,4 +1,4 @@
-# Peer to peer - milestone 1
+# Peer to peer - milestone 3
 
 
 
