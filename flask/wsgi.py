@@ -5,7 +5,16 @@ from concurrent.futures import thread
 import ssl
 from readingsDB import *
 
-app = Flask(__name__)
+from pydantic import BaseModel
+from flask_openapi3 import Info, Tag
+from flask_openapi3 import OpenAPI
+
+
+info = Info(title='M5-API', version='1.0.0')
+app = OpenAPI(__name__, info=info)
+
+
+#app = Flask(__name__)
 app.config['MQTT_BROKER_URL'] = 'diotp2p.mooo.com'  # use the free broker from HIVEMQ
 app.config['MQTT_CLIENT_ID'] = 'flaskMqttBackendNurseRedheart'
 app.config['MQTT_BROKER_PORT'] = 8883  # default port for non-tls connection
@@ -18,6 +27,9 @@ app.config["MQTT_TLS_VERSION"] = ssl.PROTOCOL_TLS_CLIENT
 mqtt = Mqtt(app)
 
 topic = '#'
+
+readings_tag = Tag(name= 'Airquality Reading', description= 'CO2 & TVOC')
+LED_tag = Tag(name= 'LED', description='See and modify LED state')
 
 sensorReadings = {'CO2': 0, 'TVOC': 0}
 
@@ -57,17 +69,25 @@ def produceReadingsTable(sensor,readings):
     output = output + "</table>"
     return output
 
-@app.route("/sensors/air-quality/co2", methods = ['GET'])
+@app.get("/sensors/air-quality/co2", tags=[readings_tag])
 def getCo2Readings():
+    """get CO2 reading
+    """
+    #return json.dumps({'status':'OK', reading.sensorType: reading.value}, ensure_ascii=False)
     return json.dumps({'status':'OK', 'CO2':sensorReadings['CO2']}, ensure_ascii=False)
 
-@app.route("/sensors/air-quality/tvoc", methods = ['Get'])
+@app.get("/sensors/air-quality/tvoc", tags=[readings_tag])
 def getTvocReadings():  
+    """get TVOC reading
+    """
     return json.dumps({'status':'OK', 'TVOC': sensorReadings['TVOC']}, ensure_ascii=False)
 
-@app.route("/actuator/leds/1", methods = ['GET'])
+@app.get("/actuator/leds/", tags=[LED_tag])
 def modifyLedState():
-    #send MQTT message with json body with new LED state
+    """send MQTT message with json body with new LED state
+
+        param: side = string, R = int {0-255}, G = int {0-255}, B = int {0-255}
+    """
     side = request.args.get('side')
     R = request.args.get('R')
     G = request.args.get('G')
