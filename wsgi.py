@@ -84,9 +84,11 @@ def getTvocReadings():
 
 @app.get("/actuator/leds/", tags=[LED_tag])
 def modifyLedState():
-    """send MQTT message with json body with new LED state
+    """send MQTT message url parameters with new LED state.
+        Should be a put request, but is not because of browser testing
 
-        param: side = string, R = int {0-255}, G = int {0-255}, B = int {0-255}
+        param: side = string, R = int {0-255}, G = int {0-255}, B = int {0-255}'
+        eg. /actuator/leds/?side=both&R=100&G=25&B=0
     """
     side = request.args.get('side')
     R = request.args.get('R')
